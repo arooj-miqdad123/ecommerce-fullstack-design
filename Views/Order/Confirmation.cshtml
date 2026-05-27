@@ -1,0 +1,87 @@
+@model EcommerceApp.Models.Order
+@{ ViewData["Title"] = "Order Confirmed"; }
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="confirm-box">
+                @if (Model.PaymentMethod == "Card") {
+                    <div class="confirm-icon text-primary"><i class="bi bi-patch-check-fill"></i></div>
+                    <h3 class="fw-bold mt-2 text-primary">Payment Successful!</h3>
+                    <p class="text-muted mb-1">Your card payment was processed successfully.</p>
+                    <span class="badge bg-primary px-3 py-2 mb-3"><i class="bi bi-credit-card me-1"></i>Card Payment — Paid</span>
+                } else {
+                    <div class="confirm-icon text-success"><i class="bi bi-check-circle-fill"></i></div>
+                    <h3 class="fw-bold mt-2 text-success">Order Placed!</h3>
+                    <p class="text-muted mb-1">Your order has been confirmed. Pay when it arrives.</p>
+                    <span class="badge bg-success px-3 py-2 mb-3"><i class="bi bi-cash-coin me-1"></i>Cash on Delivery</span>
+                }
+
+                <!-- Order Details -->
+                <div class="border rounded-3 p-3 text-start mt-2 mb-4">
+                    <div class="row g-2" style="font-size:13px">
+                        <div class="col-5 text-muted">Order ID:</div>
+                        <div class="col-7 fw-bold text-primary">#ORD-@Model.Id.ToString("D5")</div>
+
+                        <div class="col-5 text-muted">Customer:</div>
+                        <div class="col-7">@Model.CustomerName</div>
+
+                        <div class="col-5 text-muted">Email:</div>
+                        <div class="col-7">@Model.CustomerEmail</div>
+
+                        <div class="col-5 text-muted">Phone:</div>
+                        <div class="col-7">@Model.CustomerPhone</div>
+
+                        <div class="col-5 text-muted">Deliver to:</div>
+                        <div class="col-7">@Model.ShippingAddress, @Model.City, @Model.Country</div>
+
+                        <div class="col-5 text-muted">Payment:</div>
+                        <div class="col-7">
+                            <span class="badge @(Model.PaymentMethod=="Card"?"bg-primary":"bg-success")">@Model.PaymentMethod</span>
+                            <span class="badge @(Model.PaymentStatus=="Paid"?"bg-success":"bg-warning text-dark") ms-1">@Model.PaymentStatus</span>
+                        </div>
+
+                        <div class="col-5 text-muted">Order Status:</div>
+                        <div class="col-7">
+                            <span class="badge @(Model.Status switch {"Processing"=>"bg-info","Shipped"=>"bg-primary","Delivered"=>"bg-success","Cancelled"=>"bg-danger",_=>"bg-warning text-dark"})">
+                                @Model.Status
+                            </span>
+                        </div>
+                    </div>
+
+                    @if (Model.OrderItems != null && Model.OrderItems.Any()) {
+                        <hr class="my-2" />
+                        <div class="fw-semibold mb-2" style="font-size:13px">Items Ordered:</div>
+                        @foreach (var item in Model.OrderItems) {
+                            <div class="d-flex justify-content-between align-items-center py-1 border-bottom" style="font-size:12px">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="@(item.Product?.ImageUrl ?? "/images/misc/no-image.svg")"
+                                         style="width:36px;height:36px;object-fit:cover;border-radius:4px"
+                                         onerror="this.src='/images/misc/no-image.svg'" />
+                                    <span>@item.Product?.Name × @item.Quantity</span>
+                                </div>
+                                <span class="fw-bold">$@(item.UnitPrice * item.Quantity)</span>
+                            </div>
+                        }
+                        <div class="d-flex justify-content-between mt-2 fw-bold">
+                            <span>Total Paid:</span>
+                            <span class="text-primary fs-6">$@Model.Total</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex gap-2 justify-content-center">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary px-4">
+                        <i class="bi bi-house me-1"></i>Home
+                    </a>
+                    <a asp-controller="Order" asp-action="MyOrders" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-list-ul me-1"></i>My Orders
+                    </a>
+                    <a asp-controller="Product" asp-action="Index" class="btn btn-outline-primary px-4">
+                        <i class="bi bi-grid me-1"></i>Shop More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

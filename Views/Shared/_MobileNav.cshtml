@@ -1,0 +1,64 @@
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-bottom-nav d-md-none">
+    <a asp-controller="Home" asp-action="Index" class="mobile-nav-item">
+        <i class="bi bi-house-fill"></i>
+        <span>Home</span>
+    </a>
+    <a asp-controller="Product" asp-action="Index" class="mobile-nav-item">
+        <i class="bi bi-grid-fill"></i>
+        <span>Products</span>
+    </a>
+    <a asp-controller="Cart" asp-action="Index" class="mobile-nav-item">
+        <i class="bi bi-cart-fill"></i>
+        <span>Cart</span>
+    </a>
+    <a asp-controller="Account" asp-action="Login" class="mobile-nav-item">
+        <i class="bi bi-person-fill"></i>
+        <span>Account</span>
+    </a>
+    <a href="#" class="mobile-nav-item" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu">
+        <i class="bi bi-list"></i>
+        <span>Menu</span>
+    </a>
+</nav>
+
+<!-- Mobile Offcanvas Menu -->
+<div class="offcanvas offcanvas-start" id="mobileMenu">
+    <div class="offcanvas-header">
+        <div class="brand-logo"><i class="bi bi-shop"></i> Brand</div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div class="list-group list-group-flush">
+            <a asp-controller="Home" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="bi bi-house me-2"></i> Home
+            </a>
+            <a asp-controller="Product" asp-action="Index" class="list-group-item list-group-item-action">
+                <i class="bi bi-grid me-2"></i> All Products
+            </a>
+            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="1" class="list-group-item list-group-item-action">
+                <i class="bi bi-phone me-2"></i> Electronics
+            </a>
+            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="2" class="list-group-item list-group-item-action">
+                <i class="bi bi-bag me-2"></i> Clothes
+            </a>
+            <a asp-controller="Product" asp-action="Index" asp-route-categoryId="3" class="list-group-item list-group-item-action">
+                <i class="bi bi-cpu me-2"></i> Gadgets
+            </a>
+            <hr />
+            <a asp-controller="Account" asp-action="Login" class="list-group-item list-group-item-action">
+                <i class="bi bi-person me-2"></i> Sign In / Register
+            </a>
+            <a asp-controller="Order" asp-action="MyOrders" class="list-group-item list-group-item-action">
+                <i class="bi bi-bag-check me-2"></i> My Orders
+            </a>
+            <hr />
+            <a href="#" class="list-group-item list-group-item-action"><i class="bi bi-globe me-2"></i> English | USD</a>
+            <a href="#" class="list-group-item list-group-item-action"><i class="bi bi-headset me-2"></i> Contact us</a>
+            <a href="#" class="list-group-item list-group-item-action"><i class="bi bi-info-circle me-2"></i> About</a>
+            <a href="#" class="list-group-item list-group-item-action"><i class="bi bi-file-text me-2"></i> User agreement</a>
+            <a href="#" class="list-group-item list-group-item-action"><i class="bi bi-handshake me-2"></i> Partnership</a>
+            <a href="#" class="list-group-item list-group-item-action"><i class="bi bi-shield-check me-2"></i> Privacy policy</a>
+        </div>
+    </div>
+</div>

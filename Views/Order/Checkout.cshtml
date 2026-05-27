@@ -1,0 +1,248 @@
+@model EcommerceApp.ViewModels.CheckoutViewModel
+@{ ViewData["Title"] = "Checkout"; }
+
+<div class="container-xxl py-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+      <li class="breadcrumb-item"><a asp-controller="Cart" asp-action="Index">Cart</a></li>
+      <li class="breadcrumb-item active">Checkout</li>
+    </ol>
+  </nav>
+  <h4 class="fw-bold mb-4"><i class="bi bi-credit-card me-2"></i>Checkout</h4>
+
+  <form asp-action="PlaceOrder" method="post" id="checkout-form">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="StripeToken" id="stripe-token" />
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+
+        <!-- SHIPPING INFO -->
+        <div class="checkout-box">
+          <h5><i class="bi bi-geo-alt me-2"></i>Shipping Information</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Full Name *</label>
+              <input asp-for="CustomerName" class="form-control" placeholder="Your full name" />
+              <span asp-validation-for="CustomerName" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Email *</label>
+              <input asp-for="CustomerEmail" class="form-control" placeholder="email@example.com" />
+              <span asp-validation-for="CustomerEmail" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Phone *</label>
+              <input asp-for="CustomerPhone" class="form-control" placeholder="+92 300 0000000" />
+              <span asp-validation-for="CustomerPhone" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">City *</label>
+              <input asp-for="City" class="form-control" placeholder="Your city" />
+              <span asp-validation-for="City" class="text-danger small"></span>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Full Address *</label>
+              <textarea asp-for="ShippingAddress" class="form-control" rows="2" placeholder="Street address, area, landmark..."></textarea>
+              <span asp-validation-for="ShippingAddress" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Country</label>
+              <select asp-for="Country" class="form-select">
+                <option value="Pakistan">Pakistan</option>
+                <option value="UAE">UAE</option>
+                <option value="USA">United States</option>
+                <option value="UK">United Kingdom</option>
+                <option value="India">India</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAYMENT METHOD -->
+        <div class="checkout-box">
+          <h5><i class="bi bi-wallet2 me-2"></i>Payment Method</h5>
+
+          <!-- COD -->
+          <div class="pay-option active" id="opt-cod" onclick="selectPay('COD')">
+            <input type="radio" name="PaymentMethod" value="COD" id="r-cod" checked />
+            <label for="r-cod" style="flex:1;margin:0;cursor:pointer">
+              <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-cash-coin" style="font-size:30px;color:#198754"></i>
+                <div>
+                  <div class="fw-bold">Cash on Delivery (COD)</div>
+                  <div class="text-muted" style="font-size:12px">Pay when your order arrives at your door — no card needed</div>
+                </div>
+                <span class="badge bg-success ms-auto">Recommended</span>
+              </div>
+            </label>
+          </div>
+
+          <!-- CARD -->
+          <div class="pay-option" id="opt-card" onclick="selectPay('Card')">
+            <input type="radio" name="PaymentMethod" value="Card" id="r-card" />
+            <label for="r-card" style="flex:1;margin:0;cursor:pointer">
+              <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-credit-card" style="font-size:30px;color:#0d6efd"></i>
+                <div>
+                  <div class="fw-bold">Credit / Debit Card</div>
+                  <div class="text-muted" style="font-size:12px">Visa, Mastercard, American Express accepted</div>
+                </div>
+                <div class="ms-auto d-flex gap-1">
+                  <span class="badge bg-primary">VISA</span>
+                  <span class="badge bg-danger">MC</span>
+                  <span class="badge bg-info">AMEX</span>
+                </div>
+              </div>
+            </label>
+          </div>
+
+          <!-- CARD FIELDS (hidden until Card selected) -->
+          <div id="card-fields" style="display:none" class="card-fields mt-2">
+            <div class="alert alert-info py-2 px-3 mb-3" style="font-size:12px">
+              <i class="bi bi-info-circle me-1"></i>
+              <strong>Test Card:</strong> 4242 4242 4242 4242 &nbsp;|&nbsp; Expiry: 12/26 &nbsp;|&nbsp; CVC: 123
+            </div>
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Card Number</label>
+                <input type="text" id="cn" class="form-control" placeholder="4242 4242 4242 4242" maxlength="19" oninput="fmtCard(this)" />
+                <div id="cn-err" class="text-danger small mt-1"></div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Expiry</label>
+                <input type="text" id="ce" class="form-control" placeholder="MM / YY" maxlength="7" oninput="fmtExp(this)" />
+                <div id="ce-err" class="text-danger small mt-1"></div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">CVC</label>
+                <input type="text" id="cv" class="form-control" placeholder="123" maxlength="4" oninput="this.value=this.value.replace(/\D/g,'')" />
+                <div id="cv-err" class="text-danger small mt-1"></div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-semibold">Name on Card</label>
+                <input type="text" id="cname" class="form-control" placeholder="Card holder name" />
+                <div id="cn2-err" class="text-danger small mt-1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTES -->
+        <div class="checkout-box">
+          <h5><i class="bi bi-chat-left-text me-2"></i>Order Notes <span class="text-muted fw-normal" style="font-size:13px">(Optional)</span></h5>
+          <textarea name="Notes" class="form-control" rows="2" placeholder="Special delivery instructions..."></textarea>
+        </div>
+      </div>
+
+      <!-- ORDER SUMMARY -->
+      <div class="col-lg-4">
+        <div class="summary-box">
+          <h5 class="fw-bold mb-3"><i class="bi bi-receipt me-2"></i>Order Summary</h5>
+
+          <div style="max-height:260px;overflow-y:auto;margin-bottom:12px">
+            @foreach (var item in Model.CartItems)
+            {
+              <div class="d-flex align-items-center gap-2 py-2 border-bottom">
+                <img src="@(item.ImageUrl ?? "/images/misc/no-image.svg")" style="width:46px;height:46px;object-fit:cover;border-radius:6px;border:1px solid #eee" onerror="this.src='/images/misc/no-image.svg'" />
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">@item.ProductName</div>
+                  <div style="font-size:11px;color:#777">Qty: @item.Quantity</div>
+                </div>
+                <span style="font-size:13px;font-weight:700;color:#0d6efd;white-space:nowrap">$@item.Total</span>
+              </div>
+            }
+          </div>
+
+          <div class="summary-row"><span>Subtotal:</span><span>$@Model.Subtotal</span></div>
+          <div class="summary-row"><span>Shipping:</span><span class="text-success">@(Model.ShippingCost==0?"FREE":"$"+Model.ShippingCost)</span></div>
+          <div class="summary-row"><span>Tax (5%):</span><span>$@(Math.Round(Model.Subtotal*0.05m,2))</span></div>
+          <div class="summary-row total"><span>Total:</span><span class="text-primary">$@(Model.Total+Math.Round(Model.Subtotal*0.05m,2))</span></div>
+
+          <!-- COD Button -->
+          <div id="btn-cod">
+            <button type="submit" class="btn-pay">
+              <i class="bi bi-check-circle me-2"></i>Place Order (Cash on Delivery)
+            </button>
+          </div>
+
+          <!-- Card Button -->
+          <div id="btn-card" style="display:none">
+            <button type="button" onclick="processCard()" class="btn-pay" id="pay-btn" style="background:#198754">
+              <i class="bi bi-lock-fill me-2"></i>Pay $@(Model.Total+Math.Round(Model.Subtotal*0.05m,2)) Securely
+            </button>
+          </div>
+
+          <div class="text-center mt-3" style="font-size:11px;color:#777">
+            <i class="bi bi-shield-lock-fill text-success me-1"></i>SSL Secured Payment
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+@section Scripts {
+<script>
+function selectPay(method) {
+  document.getElementById('r-cod').checked = (method==='COD');
+  document.getElementById('r-card').checked = (method==='Card');
+  document.getElementById('opt-cod').classList.toggle('active', method==='COD');
+  document.getElementById('opt-card').classList.toggle('active', method==='Card');
+  document.getElementById('card-fields').style.display = method==='Card' ? 'block' : 'none';
+  document.getElementById('btn-cod').style.display = method==='COD' ? 'block' : 'none';
+  document.getElementById('btn-card').style.display = method==='Card' ? 'block' : 'none';
+}
+
+function fmtCard(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,16);
+  el.value = v.match(/.{1,4}/g)?.join(' ') || v;
+}
+
+function fmtExp(el) {
+  let v = el.value.replace(/\D/g,'').substring(0,4);
+  if(v.length>=3) v = v.substring(0,2)+' / '+v.substring(2);
+  el.value = v;
+}
+
+function validateCard() {
+  let ok = true;
+  const clearErr = id => document.getElementById(id).textContent = '';
+  ['cn-err','ce-err','cv-err','cn2-err'].forEach(clearErr);
+
+  const cn = document.getElementById('cn').value.replace(/\s/g,'');
+  const ce = document.getElementById('ce').value.replace(/\s/g,'');
+  const cv = document.getElementById('cv').value;
+  const cname = document.getElementById('cname').value;
+
+  if(cn.length < 16) { document.getElementById('cn-err').textContent = 'Enter valid 16-digit card number'; ok=false; }
+  if(ce.length < 4) { document.getElementById('ce-err').textContent = 'Enter valid expiry date'; ok=false; }
+  else {
+    const parts = ce.split('/');
+    const m = parseInt(parts[0]), y = parseInt('20'+parts[1]);
+    const now = new Date();
+    if(m<1||m>12||y<now.getFullYear()||(y===now.getFullYear()&&m<now.getMonth()+1)) {
+      document.getElementById('ce-err').textContent = 'Card is expired'; ok=false;
+    }
+  }
+  if(cv.length < 3) { document.getElementById('cv-err').textContent = 'Enter valid CVC'; ok=false; }
+  if(!cname.trim()) { document.getElementById('cn2-err').textContent = 'Enter name on card'; ok=false; }
+  return ok;
+}
+
+function processCard() {
+  if(!validateCard()) return;
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing Payment...';
+
+  // Simulate 2-second payment processing
+  setTimeout(() => {
+    const token = 'tok_test_' + Math.random().toString(36).substring(2,18);
+    document.getElementById('stripe-token').value = token;
+    document.getElementById('checkout-form').submit();
+  }, 2000);
+}
+</script>
+}

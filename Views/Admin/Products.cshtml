@@ -1,0 +1,45 @@
+@{ ViewData["Title"] = "Products"; Layout = "_AdminLayout";
+   var products = ViewBag.Products as List<EcommerceApp.Models.Product> ?? new(); }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Products <span class="badge bg-secondary ms-2">@products.Count</span></h4>
+    <a asp-action="CreateProduct" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Add Product</a>
+</div>
+
+<form asp-action="Products" method="get" class="mb-3">
+    <div class="input-group" style="max-width:350px">
+        <input type="text" name="search" class="form-control" placeholder="Search products..." />
+        <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+    </div>
+</form>
+
+<div class="bg-white rounded-3 shadow-sm overflow-hidden">
+    <table class="table table-hover mb-0" style="font-size:13px">
+        <thead class="table-light">
+            <tr><th>Image</th><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Featured</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            @foreach (var p in products) {
+                <tr>
+                    <td><img src="@(p.ImageUrl??"/images/misc/no-image.svg")" style="width:48px;height:48px;object-fit:cover;border-radius:6px" onerror="this.src='/images/misc/no-image.svg'" /></td>
+                    <td><span class="fw-medium">@p.Name</span></td>
+                    <td><span class="badge bg-secondary">@p.Category?.Name</span></td>
+                    <td>
+                        <strong class="text-primary">$@p.Price</strong>
+                        @if (p.OldPrice.HasValue) { <br/><small class="text-decoration-line-through text-muted">$@p.OldPrice</small> }
+                    </td>
+                    <td><span class="badge @(p.Stock>10?"bg-success":p.Stock>0?"bg-warning text-dark":"bg-danger")">@p.Stock</span></td>
+                    <td class="text-center">@if(p.IsFeatured){<i class="bi bi-star-fill text-warning"></i>}else{<i class="bi bi-star text-muted"></i>}</td>
+                    <td>
+                        <a asp-action="EditProduct" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                        <form asp-action="DeleteProduct" method="post" class="d-inline" onsubmit="return confirm('Delete @p.Name?')">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@p.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

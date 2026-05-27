@@ -1,0 +1,259 @@
+@model EcommerceApp.Models.Product
+@{
+    ViewData["Title"] = Model.Name;
+    var related = ViewBag.RelatedProducts as List<EcommerceApp.Models.Product> ?? new();
+}
+
+<div class="container-xxl py-3">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index">Products</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Product" asp-action="Index" asp-route-categoryId="@Model.CategoryId">@Model.Category?.Name</a></li>
+            <li class="breadcrumb-item active text-truncate" style="max-width:200px">@Model.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- IMAGE COLUMN -->
+        <div class="col-lg-5">
+            <img id="main-img"
+                 src="@(Model.ImageUrl ?? "/images/misc/no-image.svg")"
+                 alt="@Model.Name"
+                 class="detail-img"
+                 onerror="this.src='/images/misc/no-image.svg'" />
+            <div class="d-flex gap-2 mt-2 flex-wrap">
+                <img src="@(Model.ImageUrl ?? "/images/misc/no-image.svg")"
+                     class="thumb-img active"
+                     onclick="document.getElementById('main-img').src=this.src"
+                     onerror="this.style.display='none'" />
+            </div>
+        </div>
+
+        <!-- PRODUCT INFO -->
+        <div class="col-lg-4">
+            <h4 class="fw-bold lh-sm mb-2">@Model.Name</h4>
+
+            <div class="star-row mb-2" style="font-size:13px">
+                @for (int i = 1; i <= 5; i++) {
+                    <i class="bi bi-star@(i <= Model.Rating ? "-fill" : "")"></i>
+                }
+                <span class="ms-1">@Model.ReviewCount reviews</span>
+                <span class="ms-2 text-muted">|</span>
+                <span class="ms-2 text-success">@Model.ReviewCount sold</span>
+            </div>
+
+            <!-- Price Box -->
+            <div class="p-3 rounded-3 mb-3" style="background:#f8f9fa;border:1px solid #e8e8e8">
+                @if (Model.OldPrice.HasValue) {
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge bg-danger">Reduced Price</span>
+                        <span class="price-strike">$@Model.OldPrice</span>
+                    </div>
+                }
+                <div class="price-big">$@Model.Price</div>
+                @if (Model.Stock > 10) {
+                    <div class="mt-1"><span class="badge bg-success"><i class="bi bi-check-circle me-1"></i>In Stock (@Model.Stock)</span></div>
+                } else if (Model.Stock > 0) {
+                    <div class="mt-1"><span class="badge bg-warning text-dark"><i class="bi bi-exclamation-triangle me-1"></i>Only @Model.Stock left!</span></div>
+                } else {
+                    <div class="mt-1"><span class="badge bg-danger">Out of Stock</span></div>
+                }
+            </div>
+
+            <!-- Product Details Table -->
+            <table class="table table-sm mb-3" style="font-size:13px">
+                <tr><td class="text-muted" style="width:110px">Condition</td><td class="fw-medium">Brand new</td></tr>
+                <tr><td class="text-muted">Brand</td><td>@(Model.Brand ?? "N/A")</td></tr>
+                <tr><td class="text-muted">Category</td><td>@Model.Category?.Name</td></tr>
+                @if (!string.IsNullOrEmpty(Model.Sku)) {
+                    <tr><td class="text-muted">SKU</td><td>@Model.Sku</td></tr>
+                }
+                <tr><td class="text-muted">Rating</td><td>@Model.Rating / 5.0</td></tr>
+            </table>
+
+            @if (!string.IsNullOrEmpty(Model.ShortDescription)) {
+                <p class="text-muted mb-3" style="font-size:13px;line-height:1.6">@Model.ShortDescription</p>
+            }
+
+            @if (Model.Stock > 0) {
+                @if (User.Identity!.IsAuthenticated) {
+                    <form asp-controller="Cart" asp-action="AddToCart" method="post" class="d-flex gap-2 align-items-center mb-3">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <div class="d-flex align-items-center border rounded-3 overflow-hidden">
+                            <button type="button" class="btn btn-sm btn-light px-3" onclick="changeQty(this,-1)">−</button>
+                            <input type="number" name="quantity" class="form-control form-control-sm text-center border-0 fw-bold"
+                                   value="1" min="1" max="@Model.Stock" style="width:50px;box-shadow:none" id="qty-input" />
+                            <button type="button" class="btn btn-sm btn-light px-3" onclick="changeQty(this,1)">+</button>
+                        </div>
+                        <button type="submit" class="btn-cart-lg flex-grow-1">
+                            <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </form>
+                } else {
+                    <div class="alert alert-warning py-2 px-3 mb-3" style="font-size:13px">
+                        <i class="bi bi-lock me-2"></i>
+                        <a asp-controller="Account" asp-action="Login" class="fw-bold">Sign in</a> to add this item to cart
+                    </div>
+                }
+            } else {
+                <div class="alert alert-danger py-2 px-3 mb-3" style="font-size:13px">
+                    <i class="bi bi-x-circle me-2"></i>This product is currently out of stock
+                </div>
+            }
+
+            <a href="#" class="btn btn-warning text-white w-100 fw-semibold py-2 mb-2">
+                <i class="bi bi-send me-2"></i>Send Inquiry
+            </a>
+
+            <!-- Trust Badges -->
+            <div class="d-flex gap-3 mt-3 flex-wrap">
+                <div style="font-size:11px;color:#777;text-align:center">
+                    <i class="bi bi-shield-check text-success d-block" style="font-size:18px"></i>Buyer Protection
+                </div>
+                <div style="font-size:11px;color:#777;text-align:center">
+                    <i class="bi bi-truck text-primary d-block" style="font-size:18px"></i>Free Shipping
+                </div>
+                <div style="font-size:11px;color:#777;text-align:center">
+                    <i class="bi bi-arrow-counterclockwise text-warning d-block" style="font-size:18px"></i>Easy Returns
+                </div>
+                <div style="font-size:11px;color:#777;text-align:center">
+                    <i class="bi bi-lock text-danger d-block" style="font-size:18px"></i>Secure Pay
+                </div>
+            </div>
+        </div>
+
+        <!-- SUPPLIER CARD -->
+        <div class="col-lg-3">
+            <div class="supplier-box mb-3">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div style="width:42px;height:42px;background:#e3f0ff;border-radius:50%;display:flex;align-items:center;justify-content:center">
+                        <i class="bi bi-building" style="color:#0d6efd;font-size:18px"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold" style="font-size:14px">Guanye Trading LLC</div>
+                        <div style="color:#198754;font-size:11px"><i class="bi bi-patch-check-fill me-1"></i>Verified Supplier</div>
+                    </div>
+                </div>
+                <div style="font-size:12px;color:#777" class="mb-1"><i class="bi bi-geo-alt me-1"></i>Germany, Berlin</div>
+                <div style="font-size:12px;color:#777" class="mb-3"><i class="bi bi-truck me-1"></i>Worldwide shipping available</div>
+                <button class="btn btn-primary btn-sm w-100 mb-2"><i class="bi bi-send me-1"></i>Send Inquiry</button>
+                <a href="#" class="btn btn-outline-secondary btn-sm w-100 mb-2">Seller's Profile</a>
+                <button class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-heart me-1"></i>Save for Later</button>
+            </div>
+
+            <div class="supplier-box">
+                <div class="fw-bold mb-2" style="font-size:13px"><i class="bi bi-shield-check me-1 text-success"></i>Protection & Warranty</div>
+                <ul style="font-size:12px;color:#777;padding-left:16px;margin:0">
+                    <li class="mb-1">2 years full warranty</li>
+                    <li class="mb-1">30-day return policy</li>
+                    <li class="mb-1">Free shipping on orders $100+</li>
+                    <li>Authentic products guaranteed</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- DESCRIPTION TABS -->
+    <div class="mt-4">
+        <ul class="nav nav-tabs" id="prodTabs">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-desc">Description</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-specs">Specifications</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-reviews">Reviews (@Model.ReviewCount)</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-ship">Shipping</button></li>
+        </ul>
+        <div class="tab-content border border-top-0 rounded-bottom p-4 bg-white">
+            <div class="tab-pane fade show active" id="tab-desc" style="font-size:14px;line-height:1.8;color:#555">
+                <p>@Model.Description</p>
+                <ul class="mt-2">
+                    <li>Premium quality materials used</li>
+                    <li>Rigorously tested for durability</li>
+                    <li>Meets international safety standards</li>
+                    <li>Available in multiple variants</li>
+                </ul>
+            </div>
+            <div class="tab-pane fade" id="tab-specs">
+                <table class="table table-bordered table-sm" style="font-size:13px;max-width:500px">
+                    <tr><td class="fw-semibold bg-light" style="width:140px">Brand</td><td>@(Model.Brand ?? "N/A")</td></tr>
+                    <tr><td class="fw-semibold bg-light">Category</td><td>@Model.Category?.Name</td></tr>
+                    <tr><td class="fw-semibold bg-light">Condition</td><td>Brand New</td></tr>
+                    <tr><td class="fw-semibold bg-light">Stock</td><td>@Model.Stock units</td></tr>
+                    @if (!string.IsNullOrEmpty(Model.Sku)) {
+                        <tr><td class="fw-semibold bg-light">SKU</td><td>@Model.Sku</td></tr>
+                    }
+                    <tr><td class="fw-semibold bg-light">Rating</td><td>@Model.Rating / 5.0 ⭐</td></tr>
+                </table>
+            </div>
+            <div class="tab-pane fade" id="tab-reviews">
+                <div class="d-flex align-items-center gap-4 mb-4">
+                    <div class="text-center">
+                        <div style="font-size:48px;font-weight:700;color:#f39c12">@Model.Rating</div>
+                        <div class="star-row">@for(int i=1;i<=5;i++){<i class="bi bi-star@(i<=Model.Rating?"-fill":"")"></i>}</div>
+                        <div style="font-size:12px;color:#777">@Model.ReviewCount reviews</div>
+                    </div>
+                </div>
+                <p class="text-muted" style="font-size:13px">Reviews are from verified purchasers. Sign in to leave a review.</p>
+            </div>
+            <div class="tab-pane fade" id="tab-ship" style="font-size:13px">
+                <table class="table table-sm" style="max-width:450px">
+                    <tr><td class="fw-semibold">Standard Shipping:</td><td>5–7 business days — FREE on orders $100+</td></tr>
+                    <tr><td class="fw-semibold">Express Shipping:</td><td>2–3 business days — $15</td></tr>
+                    <tr><td class="fw-semibold">Same Day:</td><td>Available in selected cities</td></tr>
+                    <tr><td class="fw-semibold">Returns:</td><td>30 days hassle-free returns</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- RELATED PRODUCTS -->
+    @if (related.Any()) {
+        <div class="mt-4 mb-5">
+            <div class="sec-head">
+                <h5>Similar Products</h5>
+                <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@Model.CategoryId">View all →</a>
+            </div>
+            <div class="row g-3">
+                @foreach (var rp in related) {
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <div class="prod-card">
+                            <div class="prod-img-wrap">
+                                <a asp-action="Detail" asp-route-id="@rp.Id">
+                                    <img src="@(rp.ImageUrl ?? "/images/misc/no-image.svg")" alt="@rp.Name" onerror="this.src='/images/misc/no-image.svg'" />
+                                </a>
+                            </div>
+                            <div class="prod-body">
+                                <a asp-action="Detail" asp-route-id="@rp.Id" style="color:inherit">
+                                    <div class="prod-name">@rp.Name</div>
+                                </a>
+                                <div class="price-row"><span class="price-now">$@rp.Price</span>
+                                    @if (rp.OldPrice.HasValue) { <span class="price-old">$@rp.OldPrice</span> }
+                                </div>
+                                <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="productId" value="@rp.Id" />
+                                    <button type="submit" class="btn-addcart @(!User.Identity!.IsAuthenticated ? "login-req" : "")">
+                                        <i class="bi bi-cart-plus me-1"></i>@(!User.Identity!.IsAuthenticated ? "Login to Buy" : "Add to Cart")
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+function changeQty(btn, delta) {
+    const inp = document.getElementById('qty-input');
+    if (!inp) return;
+    const newVal = parseInt(inp.value) + delta;
+    const max = parseInt(inp.max) || 99;
+    if (newVal >= 1 && newVal <= max) inp.value = newVal;
+}
+</script>
+}

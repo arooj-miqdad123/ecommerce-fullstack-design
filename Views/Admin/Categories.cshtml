@@ -1,0 +1,52 @@
+@{ ViewData["Title"] = "Categories"; Layout = "_AdminLayout";
+   var categories = ViewBag.Categories as List<EcommerceApp.Models.Category> ?? new(); }
+
+<h4 class="fw-bold mb-4">Categories</h4>
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="bg-white rounded-3 shadow-sm p-4">
+            <h6 class="fw-bold mb-3">Add New Category</h6>
+            <form asp-action="CreateCategory" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px">Name *</label>
+                    <input type="text" name="Name" class="form-control" required placeholder="e.g. Electronics" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px">Description</label>
+                    <input type="text" name="Description" class="form-control" placeholder="Brief description" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" style="font-size:13px">Image</label>
+                    <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                </div>
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-plus me-1"></i>Add Category</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="bg-white rounded-3 shadow-sm overflow-hidden">
+            <table class="table table-hover mb-0" style="font-size:13px">
+                <thead class="table-light">
+                    <tr><th>Image</th><th>Name</th><th>Description</th><th>Products</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in categories) {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(c.ImageUrl)) {
+                                    <img src="@c.ImageUrl" style="width:40px;height:40px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'" />
+                                } else {
+                                    <div style="width:40px;height:40px;background:#f0f0f0;border-radius:6px;display:flex;align-items:center;justify-content:center"><i class="bi bi-image text-muted"></i></div>
+                                }
+                            </td>
+                            <td><strong>@c.Name</strong></td>
+                            <td class="text-muted">@c.Description</td>
+                            <td><span class="badge bg-primary">@c.Products.Count</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

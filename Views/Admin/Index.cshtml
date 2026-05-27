@@ -1,0 +1,69 @@
+@{ ViewData["Title"] = "Dashboard"; Layout = "_AdminLayout"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Dashboard</h4>
+    <span class="text-muted" style="font-size:13px">Welcome, <strong>@User.Identity!.Name</strong></span>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start">
+                <div><h3>@ViewBag.TotalProducts</h3><p>Total Products</p></div>
+                <i class="bi bi-box-seam" style="font-size:32px;opacity:.2;color:#0d6efd"></i>
+            </div>
+            <a asp-action="Products" class="small text-primary">Manage →</a>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card g">
+            <div class="d-flex justify-content-between align-items-start">
+                <div><h3>@ViewBag.TotalOrders</h3><p>Total Orders</p></div>
+                <i class="bi bi-bag-check" style="font-size:32px;opacity:.2;color:#198754"></i>
+            </div>
+            <a asp-action="Orders" class="small text-success">View all →</a>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card o">
+            <div class="d-flex justify-content-between align-items-start">
+                <div><h3>@ViewBag.PendingOrders</h3><p>Pending Orders</p></div>
+                <i class="bi bi-clock" style="font-size:32px;opacity:.2;color:#ff8f00"></i>
+            </div>
+            <a asp-action="Orders" asp-route-status="Pending" class="small text-warning">View →</a>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card g">
+            <div class="d-flex justify-content-between align-items-start">
+                <div><h3>$@(((decimal?)ViewBag.TotalRevenue ?? 0m).ToString("N0"))</h3><p>Total Revenue</p></div>
+                <i class="bi bi-currency-dollar" style="font-size:32px;opacity:.2;color:#198754"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-white rounded-3 shadow-sm p-4">
+    <h5 class="fw-bold mb-3">Recent Orders</h5>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0" style="font-size:13px">
+            <thead class="table-light">
+                <tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+                @if (ViewBag.RecentOrders != null) {
+                    foreach (EcommerceApp.Models.Order o in (List<EcommerceApp.Models.Order>)ViewBag.RecentOrders) {
+                        <tr>
+                            <td><strong class="text-primary">#ORD-@o.Id.ToString("D5")</strong></td>
+                            <td>@o.CustomerName<br/><small class="text-muted">@o.CustomerEmail</small></td>
+                            <td><strong>$@o.Total</strong></td>
+                            <td><span class="badge @(o.PaymentMethod=="Card"?"bg-primary":"bg-success")">@o.PaymentMethod</span></td>
+                            <td><span class="badge @(o.Status switch {"Delivered"=>"bg-success","Processing"=>"bg-info","Shipped"=>"bg-primary","Cancelled"=>"bg-danger",_=>"bg-warning text-dark"})">@o.Status</span></td>
+                            <td>@o.OrderDate.ToString("dd MMM")</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

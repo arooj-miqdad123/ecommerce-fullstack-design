@@ -1,0 +1,48 @@
+@{ ViewData["Title"] = "Register"; Layout = "_Layout"; }
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+            <div class="border rounded-3 p-4 bg-white shadow-sm">
+                <div class="text-center mb-4">
+                    <div class="logo-box d-inline-flex mb-3"><i class="bi bi-shop me-2"></i>Brand</div>
+                    <h5 class="fw-bold">Create an Account</h5>
+                    <p class="text-muted" style="font-size:13px">Join thousands of happy shoppers</p>
+                </div>
+
+                @if (!ViewData.ModelState.IsValid) {
+                    <div class="alert alert-danger py-2 px-3" style="font-size:13px">
+                        @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors)) {
+                            <div><i class="bi bi-exclamation-circle me-1"></i>@err.ErrorMessage</div>
+                        }
+                    </div>
+                }
+
+                <form method="post" asp-action="Register">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:13px">Full Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="Your full name" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:13px">Email Address</label>
+                        <input type="email" name="email" class="form-control" placeholder="your@email.com" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" style="font-size:13px">Password</label>
+                        <input type="password" name="password" class="form-control" placeholder="Min 6 chars + 1 digit" required />
+                        <div class="form-text" style="font-size:11px">e.g. mypass1 (6+ characters, at least 1 number)</div>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                        <i class="bi bi-person-plus me-2"></i>Create Account
+                    </button>
+                </form>
+
+                <div class="text-center mt-3" style="font-size:13px">
+                    <span class="text-muted">Already have an account?</span>
+                    <a asp-action="Login" class="ms-1 fw-semibold text-primary">Sign in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

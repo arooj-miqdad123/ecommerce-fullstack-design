@@ -1,0 +1,252 @@
+@model EcommerceApp.ViewModels.HomeViewModel
+@{ ViewData["Title"] = "Home - Brand Store"; }
+
+<div class="hero-section">
+  <div class="container-xxl">
+    <div class="row g-3">
+
+      <!-- MAIN CAROUSEL -->
+      <div class="col-lg-8">
+        <div id="mainCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel">
+          <div class="carousel-inner h-100">
+            <div class="carousel-item active h-100">
+              <div class="hero-slide" style="background:linear-gradient(120deg,#e3f0ff,#f0f8ff)">
+                <img src="/images/banner/banner-1.png" style="position:absolute;right:0;top:0;height:100%;width:55%;object-fit:cover;opacity:.25;border-radius:0 10px 10px 0" onerror="this.style.display='none'" />
+                <small>Latest trending</small>
+                <h2>Electronic Items</h2>
+                <p>Discover best deals on electronics and gadgets</p>
+                <a asp-controller="Product" asp-action="Index" asp-route-categoryId="1" class="btn btn-primary">Learn more</a>
+              </div>
+            </div>
+            <div class="carousel-item h-100">
+              <div class="hero-slide slide2" style="background:linear-gradient(120deg,#fff8e1,#fffde7)">
+                <img src="/images/banner/banner-2.png" style="position:absolute;right:0;top:0;height:100%;width:55%;object-fit:cover;opacity:.25;border-radius:0 10px 10px 0" onerror="this.style.display='none'" />
+                <small>Fashion collection</small>
+                <h2>Clothes & Accessories</h2>
+                <p>Explore our latest clothing and accessories</p>
+                <a asp-controller="Product" asp-action="Index" asp-route-categoryId="2" class="btn btn-warning text-white">Shop now</a>
+              </div>
+            </div>
+            <div class="carousel-item h-100">
+              <div class="hero-slide" style="background:linear-gradient(120deg,#e8f5e9,#f1f8e9)">
+                <img src="/images/banner/banner-3.png" style="position:absolute;right:0;top:0;height:100%;width:55%;object-fit:cover;opacity:.25;border-radius:0 10px 10px 0" onerror="this.style.display='none'" />
+                <small>Best sellers</small>
+                <h2>Smart Gadgets</h2>
+                <p>Top rated gadgets and smart devices</p>
+                <a asp-controller="Product" asp-action="Index" asp-route-categoryId="3" class="btn btn-success text-white">Explore</a>
+              </div>
+            </div>
+          </div>
+          <button class="carousel-control-prev" data-bs-target="#mainCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+          <button class="carousel-control-next" data-bs-target="#mainCarousel" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+          <div class="carousel-indicators">
+            <button data-bs-target="#mainCarousel" data-bs-slide-to="0" class="active"></button>
+            <button data-bs-target="#mainCarousel" data-bs-slide-to="1"></button>
+            <button data-bs-target="#mainCarousel" data-bs-slide-to="2"></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDE PROMOS -->
+      <div class="col-lg-4 d-none d-lg-block">
+        <div class="row g-3 h-100">
+          <div class="col-12">
+            <div class="promo-card green" style="position:relative">
+              <div>
+                <small>Deals and offers</small>
+                <h6>Smart watches</h6>
+                <div class="countdown">
+                  <span id="c-h">04</span><span id="c-m">23</span><span id="c-s">05</span>
+                </div>
+              </div>
+              <img src="/images/banner/promo-1.png" style="height:90px;width:90px;object-fit:contain;border-radius:8px" onerror="this.style.display='none'" />
+              <i class="bi bi-smartwatch bg-icon" style="color:#2e7d32"></i>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="promo-card red">
+              <div>
+                <small>Home and outdoor</small>
+                <h6>Special offers</h6>
+                <div class="d-flex gap-2 mt-1">
+                  <span class="badge bg-danger">-25%</span>
+                  <span class="badge bg-danger">-29%</span>
+                  <span class="badge bg-warning text-dark">-17%</span>
+                </div>
+              </div>
+              <img src="/images/banner/promo-2.png" style="height:90px;width:90px;object-fit:contain;border-radius:8px" onerror="this.style.display='none'" />
+              <i class="bi bi-house bg-icon" style="color:#bf360c"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<div class="container-xxl mt-4">
+  <div class="sec-head">
+    <h5>Browse by Category</h5>
+    <a asp-controller="Product" asp-action="Index">View all →</a>
+  </div>
+  <div class="row g-2">
+    @foreach (var cat in Model.Categories)
+    {
+      <div class="col-4 col-sm-3 col-md-2">
+        <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@cat.Id" class="cat-card">
+          <div class="cat-icon-wrap">
+            @if (!string.IsNullOrEmpty(cat.ImageUrl)) {
+              <img src="@cat.ImageUrl" alt="@cat.Name" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+            }
+            <i class="@(cat.Name switch { "Electronics"=>"bi bi-phone","Clothes"=>"bi bi-bag","Gadgets"=>"bi bi-cpu","Accessories"=>"bi bi-backpack","Smart Watches"=>"bi bi-watch",_=>"bi bi-grid" })" style="@(string.IsNullOrEmpty(cat.ImageUrl) ? "" : "display:none")"></i>
+          </div>
+          <span>@cat.Name</span>
+        </a>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- DEALS & FEATURED -->
+<div class="container-xxl mt-4">
+  <div class="row g-4">
+    <!-- Deals column -->
+    <div class="col-lg-3 d-none d-lg-block">
+      <div class="border rounded-3 p-3 bg-white h-100">
+        <div class="fw-bold mb-3" style="font-size:15px"><i class="bi bi-lightning-fill text-warning"></i> Deals and offers</div>
+        <div class="d-flex flex-column gap-2">
+          @foreach (var p in Model.FeaturedProducts.Take(4))
+          {
+            <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id" class="deal-item text-decoration-none text-dark">
+              <img src="@(p.ImageUrl ?? "/images/misc/no-image.svg")" alt="@p.Name" onerror="this.src='/images/misc/no-image.svg'" />
+              <div>
+                <div class="name">@(p.Name.Length > 22 ? p.Name.Substring(0,22)+"..." : p.Name)</div>
+                <div class="price">$@p.Price</div>
+                @if (p.OldPrice.HasValue) {
+                  <small style="color:#dc3545;font-size:11px">-@(Math.Round((1-p.Price/p.OldPrice.Value)*100))% OFF</small>
+                }
+              </div>
+            </a>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Featured Products -->
+    <div class="col-lg-9">
+      <div class="sec-head">
+        <h5>Featured Products</h5>
+        <a asp-controller="Product" asp-action="Index">Source now →</a>
+      </div>
+      <div class="row g-3">
+        @foreach (var p in Model.FeaturedProducts)
+        {
+          <div class="col-6 col-sm-4 col-md-3">
+            <div class="prod-card">
+              <div class="prod-img-wrap">
+                <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id">
+                  <img src="@(p.ImageUrl ?? "/images/misc/no-image.svg")" alt="@p.Name" onerror="this.src='/images/misc/no-image.svg'" />
+                </a>
+                @if (p.OldPrice.HasValue) { <span class="disc-badge">-@(Math.Round((1-p.Price/p.OldPrice.Value)*100))%</span> }
+              </div>
+              <div class="prod-body">
+                <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id" style="color:inherit">
+                  <div class="prod-name">@p.Name</div>
+                </a>
+                <div class="star-row">
+                  @for (int s=1;s<=5;s++) { <i class="bi bi-star@(s<=p.Rating?"-fill":"")"></i> }
+                  <span>(@p.ReviewCount)</span>
+                </div>
+                <div class="price-row">
+                  <span class="price-now">$@p.Price</span>
+                  @if (p.OldPrice.HasValue) { <span class="price-old">$@p.OldPrice</span> }
+                </div>
+                @if (p.Stock > 0) { <div class="badge-free mb-2"><i class="bi bi-truck me-1"></i>Free Shipping</div> }
+                <form asp-controller="Cart" asp-action="AddToCart" method="post">
+                  @Html.AntiForgeryToken()
+                  <input type="hidden" name="productId" value="@p.Id" />
+                  <button type="submit" class="btn-addcart @(!User.Identity!.IsAuthenticated ? "login-req" : "")">
+                    <i class="bi bi-cart-plus me-1"></i>@(!User.Identity!.IsAuthenticated ? "Login to Buy" : "Add to Cart")
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INQUIRY BANNER -->
+<div class="container-xxl">
+  <div class="inquiry-banner">
+    <div class="row align-items-center">
+      <div class="col-md-7">
+        <h4>An easy way to send requests to all suppliers</h4>
+        <p>Send one request and get multiple offers from suppliers all over the world</p>
+        <a href="#" class="btn">Send inquiry</a>
+      </div>
+      <div class="col-md-5 text-end d-none d-md-block">
+        <img src="/images/misc/send-inquiry.png" style="height:80px;opacity:.6" onerror="this.style.display='none'" />
+        <i class="bi bi-send-fill" style="font-size:80px;opacity:.15"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RECOMMENDED -->
+<div class="container-xxl mb-5">
+  <div class="sec-head">
+    <h5>Recommended Items</h5>
+    <a asp-controller="Product" asp-action="Index">View all →</a>
+  </div>
+  <div class="row g-3">
+    @foreach (var p in Model.RecommendedProducts)
+    {
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+        <div class="prod-card">
+          <div class="prod-img-wrap">
+            <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id">
+              <img src="@(p.ImageUrl ?? "/images/misc/no-image.svg")" alt="@p.Name" onerror="this.src='/images/misc/no-image.svg'" />
+            </a>
+          </div>
+          <div class="prod-body">
+            <a asp-controller="Product" asp-action="Detail" asp-route-id="@p.Id" style="color:inherit">
+              <div class="prod-name">@p.Name</div>
+            </a>
+            <div class="price-row"><span class="price-now">$@p.Price</span></div>
+            <form asp-controller="Cart" asp-action="AddToCart" method="post">
+              @Html.AntiForgeryToken()
+              <input type="hidden" name="productId" value="@p.Id" />
+              <button type="submit" class="btn-addcart @(!User.Identity!.IsAuthenticated ? "login-req" : "")">
+                <i class="bi bi-cart-plus me-1"></i>@(!User.Identity!.IsAuthenticated ? "Login to Buy" : "Add to Cart")
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+@section Scripts {
+<script>
+// Countdown timer
+function startCountdown() {
+  let h=4,m=23,s=5;
+  setInterval(()=>{
+    s--;if(s<0){s=59;m--;}if(m<0){m=59;h--;}if(h<0){h=23;}
+    const f=n=>String(n).padStart(2,'0');
+    const ch=document.getElementById('c-h');
+    const cm=document.getElementById('c-m');
+    const cs=document.getElementById('c-s');
+    if(ch)ch.textContent=f(h);
+    if(cm)cm.textContent=f(m);
+    if(cs)cs.textContent=f(s);
+  },1000);
+}
+startCountdown();
+</script>
+}

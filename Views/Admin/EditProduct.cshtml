@@ -1,0 +1,99 @@
+@model EcommerceApp.Models.Product
+@{ ViewData["Title"] = "Edit Product"; Layout = "_AdminLayout";
+   var categories = ViewBag.Categories as List<EcommerceApp.Models.Category> ?? new(); }
+
+<div class="d-flex align-items-center gap-3 mb-4">
+    <a asp-action="Products" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+    <h4 class="fw-bold mb-0">Edit Product</h4>
+</div>
+<div class="bg-white rounded-3 shadow-sm p-4" style="max-width:700px">
+    <form asp-action="EditProduct" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        <input asp-for="CreatedAt" type="hidden" />
+
+        <div class="row g-3">
+            @if (!string.IsNullOrEmpty(Model.ImageUrl)) {
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Current Image</label><br/>
+                    <img id="img-preview" src="@Model.ImageUrl" style="width:100px;height:100px;object-fit:cover;border-radius:8px;border:1px solid #eee" onerror="this.src='/images/misc/no-image.svg'" />
+                    <input asp-for="ImageUrl" type="hidden" />
+                </div>
+            }
+            <div class="col-12">
+                <label class="form-label fw-semibold">Product Name *</label>
+                <input asp-for="Name" class="form-control" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Price *</label>
+                <div class="input-group"><span class="input-group-text">$</span><input asp-for="Price" class="form-control" type="number" step="0.01" required /></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Old Price</label>
+                <div class="input-group"><span class="input-group-text">$</span><input asp-for="OldPrice" class="form-control" type="number" step="0.01" /></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Category *</label>
+                <select asp-for="CategoryId" class="form-select">
+                    @foreach (var c in categories)
+                    {
+                        <option value="@c.Id" selected="@(Model.CategoryId == c.Id ? "selected" : null)">@c.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Stock *</label>
+                <input asp-for="Stock" class="form-control" type="number" min="0" required />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Brand</label>
+                <input asp-for="Brand" class="form-control" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">SKU</label>
+                <input asp-for="Sku" class="form-control" />
+            </div>
+            <div class="col-12">
+                <label class="form-label fw-semibold">Short Description</label>
+                <input asp-for="ShortDescription" class="form-control" />
+            </div>
+            <div class="col-12">
+                <label class="form-label fw-semibold">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+            </div>
+            <div class="col-12">
+                <label class="form-label fw-semibold">Replace Image <small class="text-muted">(optional)</small></label>
+                <input type="file" name="imageFile" class="form-control" accept="image/*" onchange="previewImg(this)" />
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-semibold">Rating</label>
+                <input asp-for="Rating" class="form-control" type="number" step="0.1" min="0" max="5" />
+            </div>
+            <div class="col-md-6 d-flex align-items-end gap-4 pb-1">
+                <div class="form-check">
+                    <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+                    <label class="form-check-label fw-semibold">Featured</label>
+                </div>
+                <div class="form-check">
+                    <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                    <label class="form-check-label fw-semibold">Active</label>
+                </div>
+            </div>
+            <div class="col-12 d-flex gap-2 pt-2">
+                <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check me-1"></i>Update Product</button>
+                <a asp-action="Products" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+@section Scripts {
+<script>
+function previewImg(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => { document.getElementById('img-preview').src = e.target.result; };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+}
